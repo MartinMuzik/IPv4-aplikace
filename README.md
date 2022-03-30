@@ -16,6 +16,10 @@
   • Číslo podsítě: 2 \
   • Číslo PC: 2 
   
+### Rozdělení práce
+**Martin Mužík** - \
+**Dominik Švestka** - \
+  
 ### Časová osa
 
   **8.4.2022** Vytvoření funkce pro výpočet IPv4 adresy - backend \
