@@ -14,7 +14,7 @@
   • Adresa podsítě: 172.16.0.128/26 \
   • Číslo sítě: 172.16 \
   • Číslo podsítě: 2 \
-  • Číslo PC: 2 \
+  • Číslo PC: 2 
   
 ### Časová osa
 
