@@ -1,5 +1,6 @@
 # IPv4-aplikace
-### Týmová práce Aplikace pro IPv4 adresy (Martin Mužík, Dominik Švestka)
+## Týmová práce Aplikace pro IPv4 adresy
+### Martin Mužík, Dominik Švestka
 
 Vytvořte (webovou) aplikaci pro analýzu zadané IPv4 adresy. Výstupem bude aplikace po zadání adresy PC včetně
 prefixu, která určí: zda se jedná o veřejnou nebo neveřejnou IP adresu, dále určí třídní adresu sítě, adresu podsítě,
@@ -16,4 +17,10 @@ Výstup:
 
 ### Časová osa
 
+**8.4.2022** Vytvoření funkce pro výpočet IPv4 adresy - backend
 
+**15.4.2022** Návrh vzhledu
+
+**8.5.2022** Dokončení aplikace
+
+**30.5.2022** Vytvoření prezentace
