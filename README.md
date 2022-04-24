@@ -16,7 +16,7 @@
   • Číslo PC: 2 
   
 ### Rozdělení práce
-**Martin Mužík** - vytvoření aplikace, návrh grafického provedení aplikace \
+**Martin Mužík** - vytvoření aplikace \
 **Dominik Švestka** - vysvětlení problematiky struktury IP adresy programátorovi \
   
 ### Časová osa
