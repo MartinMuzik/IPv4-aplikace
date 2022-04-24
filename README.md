@@ -22,7 +22,7 @@
 ### Časová osa
 
   **8.4.2022** Vytvoření funkce pro výpočet IPv4 adresy - backend \
-  **15.4.2022** Návrh vzhledu \
+  **15.4.2022** Návrh vzhledu  **Hotovo** \
   **8.5.2022** Dokončení aplikace \
   **30.5.2022** Vytvoření prezentace 
   
