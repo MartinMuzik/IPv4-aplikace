@@ -1,32 +1,40 @@
+package cz.sspbrno.ipv4aplikace;
+
 /**
  * Analyzer class analyzes IPv4 address
- * It determines: whether it is a public or non-public IP address,
- * then determines the class address of the network, subnet address,
- * network number, subnet number and PC number.
+ * It checks if the input is correct IPv4 address,
+ * If the input is correct, it will set up the IPAddress object
+ * and its characteristics. Then returns all these information
+ * about analyzed IPv4 address.
  *
  *
  * @author Martin Muzik
  * @version 1.0
  * @since 2022-04-24
  */
-
-package cz.sspbrno.ipv4aplikace;
-
 public class Analyzer {
-
+    /**
+     * This method is used to start analyze of an entered IP Address.
+     * It sets up the IPAddress object and gather all information about it.
+     * @param address This is user input - IPv4 address (x.x.x.x/y)
+     * @return String This returns all information about the entered IP address.
+     */
     public static String startAnalyze(String address) {
+        /*  This list is initialized in checkInput method.
+            First 4 items will be parts of IP and the last one will be prefix.
+         */
         int[] ipAddressList = new int[5];
 
-        if (checkInput(address, ipAddressList)) {
+        /*  If checkInput method don't find any mistake in the input (address),
+            it will start setting up the IPAddress.
+         */
+        if (checkInput(address.trim(), ipAddressList)) {
             IPAddress ipAddress = new IPAddress(
                     ipAddressList[0],
                     ipAddressList[1],
                     ipAddressList[2],
                     ipAddressList[3],
                     ipAddressList[4]);
-            setClass(ipAddress);
-            setRange(ipAddress);
-            setSubnetAddress(ipAddress);
             return "Třída "+ipAddress.getIpClass()+" - "+ipAddress.getIpRange() +
                     "\nTřídní adresa sítě: "                                    +
                     "\nAdresa podsítě: "+ipAddress.getSubnetAddress();
@@ -35,50 +43,64 @@ public class Analyzer {
 
     }
 
-    /*
-        Checks if the input is correct.
-        Appends each part of IP address into ipAddressList.
-        Returns true if the input is correct.
+    /**
+     * This method is used to check if the input is correct.
+     * Appends each part of IP address into ipAddressList.
+     * @param address This is user input - IPv4 address (x.x.x.x/y)
+     * @param ipAddressList an empty list of 5 items, the parts of the address
+     *                      will be appended here.
+     * @return true if the input is correct.
      */
     public static boolean checkInput(String address, int[] ipAddressList) {
         char currentChar;
         String currentPart = "";
         int partsDone = 0;
 
-        if (18 >= address.length() && address.length() >= 9) {  // condition for faster detection of wrong input
+        /*
+            A condition for faster detection of wrong input.
+            IP address can't be shorter than 9 characters and
+            longer than 18 characters.
+         */
+        if (18 >= address.length() && address.length() >= 9) {
             for (int i = 0; i <= address.length(); i++) {
+                // Last repetition is for checking and appending the prefix to the list
                 if (i < address.length()) {
                     currentChar = address.charAt(i);
 
                     if (Character.isDigit(currentChar) &&
-                            currentPart.length() < 4 &&
+                            currentPart.length() < 4 &&  // Each number can have maximum 3 digits
+                            // IPv4 has 5 parts in total. 4 parts divided by 3 dots and an prefix after slash
                             partsDone < 5) {
                         currentPart += currentChar;
 
                     } else if (currentChar == '.' &&
-                            currentPart.length() >= 1 &&
-                            partsDone < 3 &&
-                            Integer.parseInt(currentPart) <= 255 &&  // interval of each part of IP address is 0-255
+                            currentPart.length() >= 1 && // to detect if there aren't two dots consecutively
+                            partsDone < 3 &&  // IPv4 has 4 parts divided by 3 dots
+                            // interval of each part of an IP address is 0-255
+                            Integer.parseInt(currentPart) <= 255 &&
                             Integer.parseInt(currentPart) >= 0) {
                         ipAddressList[partsDone++] = Integer.parseInt(currentPart);
                         currentPart = "";
 
                     } else if (currentChar == '/' &&
-                            currentPart.length() >= 1 &&
-                            partsDone == 3 &&
-                            Integer.parseInt(currentPart) <= 255 &&  // interval of each part of IP address is 0-255
+                            currentPart.length() >= 1 && // to detect if there aren't two dots consecutively
+                            partsDone == 3 && // There are 4 parts in total before slash, so this one must be fourth.
+                            // interval of each part of an IP address is 0-255
+                            Integer.parseInt(currentPart) <= 255 &&
                             Integer.parseInt(currentPart) >= 0) {
                         ipAddressList[partsDone++] = Integer.parseInt(currentPart);
                         currentPart = "";
 
                     } else return false;
                 }
-                // IP prefix check
+                // Prefix check
                 else {
+                    // Prefix can have only 1 or 2 digits.
                     if (currentPart.length() < 3 &&
                        currentPart.length() > 0 &&
                        partsDone == 4 &&
-                       Integer.parseInt(currentPart) <= 32 &&  // prefix interval is 1-32
+                       // Prefix interval is 1-32.
+                       Integer.parseInt(currentPart) <= 32 &&
                        Integer.parseInt(currentPart) >= 1) {
                         ipAddressList[partsDone++] = Integer.parseInt(currentPart);
                     }
@@ -91,166 +113,4 @@ public class Analyzer {
         return false;
     }
 
-    /*
-        Sets IP class.
-     */
-    public static void setClass(IPAddress ip) {
-        if (ip.getPart1() >= 0 && ip.getPart1() < 128) {
-            ip.setIpClass('A');
-        }
-        else if (ip.getPart1() >= 128 && ip.getPart1() < 192) {
-            ip.setIpClass('B');
-        }
-        else if (ip.getPart1() >= 192 && ip.getPart1() < 224) {
-            ip.setIpClass('C');
-        }
-        else if (ip.getPart1() >= 224 && ip.getPart1() < 240) {
-            ip.setIpClass('D');
-        }
-        else if (ip.getPart1() >= 240 && ip.getPart1() <= 255) {
-            ip.setIpClass('E');
-        }
-    }
-
-    public static void setRange(IPAddress ip) {
-        if (ip.getPart1() == 10) {
-            ip.setIpRange("Neveřejná");
-        }
-        else if (ip.getPart1() == 169 &&
-                 ip.getPart2() == 254) {
-            ip.setIpRange("Neveřejná");
-        }
-        else if (ip.getPart1() == 172 &&
-                 ip.getPart2() >= 16 &&
-                 ip.getPart2() <= 31) {
-            ip.setIpRange("Neveřejná");
-        }
-        else if (ip.getPart1() == 192 &&
-                ip.getPart2() <= 168) {
-            ip.setIpRange("Neveřejná");
-        }
-        else ip.setIpRange("Veřejná");
-    }
-
-    public static void setSubnetAddress(IPAddress ip) {
-        int difference;
-        String result;
-        boolean finished = false;
-
-        if (ip.getPrefix() == 32) {
-            result = ip.getPart1() + "." +
-                     ip.getPart2() + "." +
-                     ip.getPart3() + "." +
-                     ip.getPart4();
-            ip.setSubnetAddress(result);
-        }
-        else if (ip.getPrefix() == 24) {
-            result = ip.getPart1() + "." +
-                    ip.getPart2() + "." +
-                    ip.getPart3() + "." +
-                    "0";
-            ip.setSubnetAddress(result);
-        }
-        else if (ip.getPrefix() == 16) {
-            result = ip.getPart1() + "." +
-                    ip.getPart2() + "." +
-                    "0"   + "."              +
-                    "0";
-            ip.setSubnetAddress(result);
-        }
-        else if (ip.getPrefix() == 8) {
-            result = ip.getPart1() + "." +
-                    "0"     + "."            +
-                    "0"      + "."           +
-                    "0";
-            ip.setSubnetAddress(result);
-        }
-        else if (ip.getPrefix() == 0){
-            result = "0"+ "." +
-                    "0"+ "." +
-                    "0"+ "." +
-                    "0";
-            ip.setSubnetAddress(result);
-        }
-        else {
-            difference = 256 - getMaskPart(ip.getPrefix());
-            int subnetPart = 0;
-            int i = 0;
-
-            if (ip.getPrefix() >= 25) {
-                while (!finished) {
-                    if (ip.getPart4() < i) {
-                        subnetPart = i - difference;
-                        finished = true;
-                    }
-                    i += difference;
-                }
-                result = ip.getPart1() + "." +
-                        ip.getPart2() + "." +
-                        ip.getPart3() + "." +
-                        subnetPart;
-                ip.setSubnetAddress(result);
-            }
-            else if (ip.getPrefix() >= 17) {
-                while (!finished) {
-                    if (ip.getPart3() < i) {
-                        subnetPart = i - difference;
-                        finished = true;
-                    }
-                    i += difference;
-                }
-                result = ip.getPart1() + "." +
-                        ip.getPart2() + "."  +
-                        subnetPart + "."      +
-                        "0";
-                ip.setSubnetAddress(result);
-            }
-            else if (ip.getPrefix() >= 9) {
-                    while (!finished) {
-                        if (ip.getPart2() < i) {
-                            subnetPart = i - difference;
-                            finished = true;
-                        }
-                        i += difference;
-                    }
-                result = ip.getPart1() + "." +
-                        subnetPart + "."        +
-                        "0"         + "."        +
-                        "0";
-                ip.setSubnetAddress(result);
-            }
-            else if (ip.getPrefix() >= 1){
-                while (!finished) {
-                    if (ip.getPart1() < i) {
-                        subnetPart = i - difference;
-                        finished = true;
-                    }
-                    i += difference;
-                }
-                result = subnetPart+ "." +
-                        "0" + "."       +
-                        "0"  + "."      +
-                        "0";
-                ip.setSubnetAddress(result);
-            }
-        }
-    }
-
-    public static int getMaskPart(int prefix) {
-        String binary;
-
-        if (prefix >= 25) {
-            binary = "1".repeat(prefix - 24) + "0".repeat(32-prefix);
-        }
-        else if (prefix >= 17) {
-            binary = "1".repeat(prefix - 16) + "0".repeat(24-prefix);
-        }
-        else if (prefix >= 9) {
-            binary = "1".repeat(prefix - 8) + "0".repeat(16-prefix);
-        }
-        else {
-            binary = "1".repeat(prefix) + "0".repeat(8-prefix);
-        }
-        return Integer.parseInt(binary, 2);
-    }
 }
