@@ -17,12 +17,12 @@
   
 ### Rozdělení práce
 **Martin Mužík** - vytvoření aplikace \
-**Dominik Švestka** - vysvětlení problematiky struktury IP adresy programátorovi \
+**Dominik Švestka** - vysvětlení problematiky struktury IP adresy programátorovi 
   
 ### Časová osa
 
-  **8.4.2022** Vytvoření funkce pro výpočet IPv4 adresy - backend \
-  **15.4.2022** Návrh vzhledu  **Hotovo** \
-  **8.5.2022** Dokončení aplikace \
+  **24.4.2022** Frontend **Hotovo** \
+  **7.5.2022** Backend  \
+  **30.5.2022** Dokončení aplikace \
   **30.5.2022** Vytvoření prezentace 
   
