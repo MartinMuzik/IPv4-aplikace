@@ -25,7 +25,7 @@ public class Analyzer {
          */
         int[] ipAddressList = new int[5];
 
-        /*  If checkInput method don't find any mistake in the input (address),
+        /*  If checkInput method doesn't find any mistake in the input (address),
             it will start setting up the IPAddress.
          */
         if (checkInput(address.trim(), ipAddressList)) {
@@ -35,9 +35,7 @@ public class Analyzer {
                     ipAddressList[2],
                     ipAddressList[3],
                     ipAddressList[4]);
-            return "Třída "+ipAddress.getIpClass()+" - "+ipAddress.getIpRange() +
-                    "\nTřídní adresa sítě: "                                    +
-                    "\nAdresa podsítě: "+ipAddress.getSubnetAddress();
+            return ipAddress.toString();
         }
         return "Neplatný vstup";
 
