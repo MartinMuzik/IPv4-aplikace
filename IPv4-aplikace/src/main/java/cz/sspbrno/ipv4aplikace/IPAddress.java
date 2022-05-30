@@ -20,8 +20,10 @@ public class IPAddress {
     private char ipClass;
     private String ipRange;
     private String subnetAddress;
+    private String networkAddress;
+    private String networkNumber;
+    private int pcNumber;
 
-    // TODO: zdokumentovat tuto classu; udelat zde toString; v startAnalyze do spravneho returnu dat toString
     /**
      * This constructor sets up the IPv4 address (x.x.x.x/y) and all information about it.
      * @param part1 This the first "x" in the address.
@@ -39,6 +41,7 @@ public class IPAddress {
         this.setIpClass();
         this.setIpRange();
         this.setSubnetAddress();
+        this.setNetwork();
     }
 
     public int getPart1() {
@@ -121,6 +124,37 @@ public class IPAddress {
 
     }
 
+    public String getNetworkAddress() {
+        return networkAddress;
+    }
+
+    /**
+     * This method is used to set a network address
+     * and to set network number
+     */
+    public void setNetwork() {
+        if (this.ipClass == 'A') {
+            this.networkAddress = this.part1 + ".0.0.0/8";
+            this.networkNumber = String.valueOf(this.part1);
+        }
+        else if (this.ipClass == 'B') {
+            this.networkAddress = this.part1 + "." + this.part2 + ".0.0/16";
+            this.networkNumber = this.part1 + "." + this.part2;
+        }
+        // Classes C,D,E have prefix 24
+        else {
+            this.networkAddress = this.part1 + "." + this.part2 + "." + this.part3 + ".0/24";
+            this.networkNumber = this.part1 + "." + this.part2 + "." + this.part3;
+        }
+    }
+
+    public String getNetworkNumber() {
+        return networkNumber;
+    }
+
+    public String getPcNumber() {
+        return Long.toString(pcNumber);
+    }
     public String getSubnetAddress() {
         return subnetAddress;
     }
@@ -146,6 +180,8 @@ public class IPAddress {
      * Subnet address is always smaller or same as the IP address.
      * For example 10.30.43.130/26 has subnet address 10.30.43.128
      * because difference for prefix 26 is 64.
+     *
+     * This method is also used to set pcNumber.
      */
     public void setSubnetAddress() {
 
@@ -158,28 +194,70 @@ public class IPAddress {
                     this.getPart2() + "." +
                     this.getPart3() + "." +
                     this.getPart4();
-            this.subnetAddress = result;
+            this.subnetAddress = result + "/" + this.getPrefix();
+
+            this.pcNumber = 1; // Address is same as network address
         }
         else if (this.getPrefix() == 24) {
             result = this.getPart1() + "." +
                     this.getPart2() + "." +
                     this.getPart3() + "." +
                     "0";
-            this.subnetAddress = result;
+            this.subnetAddress = result + "/" + this.getPrefix();
+
+            if (this.getPart4() != 0) {
+                this.pcNumber = this.getPart4();
+            }
+            else {
+                this.pcNumber = 1; // Address is same as network address
+            }
         }
         else if (this.getPrefix() == 16) {
             result = this.getPart1() + "." +
                     this.getPart2() + "." +
                     "0"   + "."              +
                     "0";
-            this.subnetAddress = result;
+            this.subnetAddress = result + "/" + this.getPrefix();
+
+            if (this.part3 != 0) {
+                this.pcNumber = (this.getPart3() - 1) * 256 + this.getPart4(); //tzv. Mužíkův vzorec
+            }
+            else {
+                if (this.part4 != 0) {
+                    this.pcNumber = this.getPart4();
+                }
+                else {
+                    this.pcNumber = 1; // Address is same as network address
+                }
+            }
+
         }
         else if (this.getPrefix() == 8) {
             result = this.getPart1() + "." +
                     "0"     + "."            +
                     "0"      + "."           +
                     "0";
-            this.subnetAddress = result;
+            this.subnetAddress = result + "/" + this.getPrefix();
+
+            if (this.part2 != 0) {
+                if (this.part3 != 0) {
+                    this.pcNumber = (this.getPart2() - 1) * 65536 + (this.getPart3() - 1) * 256 + this.getPart4(); //tzv. Mužíkův vzorec
+                }
+                else {
+                    this.pcNumber = (this.getPart2() - 1) * 65536 + this.getPart4(); //tzv. Mužíkův vzorec
+                }
+            }
+            else {
+                if (this.part3 != 0) {
+                    this.pcNumber = (this.getPart3() - 1) * 256 + this.getPart4(); //tzv. Mužíkův vzorec
+                }
+                else if (this.part4 != 0) {
+                    this.pcNumber = this.getPart4();
+                }
+                else {
+                    this.pcNumber = 1; // Address is same as network address
+                }
+            }
         }
         else {
             difference = 256 - getMaskPart();
@@ -198,7 +276,14 @@ public class IPAddress {
                         this.getPart2() + "." +
                         this.getPart3() + "." +
                         subnetPart;
-                this.subnetAddress = result;
+                this.subnetAddress = result + "/" + this.getPrefix();
+
+                if (this.getPart4() != subnetPart) {
+                    this.pcNumber = this.getPart4() - subnetPart;
+                }
+                else {
+                    this.pcNumber = 1; // Address is same as network address
+                }
             }
             else if (this.getPrefix() >= 17) {
                 while (!finished) {
@@ -212,7 +297,17 @@ public class IPAddress {
                         this.getPart2() + "."  +
                         subnetPart + "."      +
                         "0";
-                this.subnetAddress = result;
+                this.subnetAddress = result + "/" + this.getPrefix();
+
+                if (this.getPart3() != subnetPart) {
+                    this.pcNumber = this.getPart4() + (this.getPart3() - subnetPart) * 256; // tzv. Mužíkův vzorec
+                }
+                else if (this.getPart4() != 0){
+                    this.pcNumber = this.getPart4();
+                }
+                else {
+                    this.pcNumber = 1; // Address is same as network address
+                }
             }
             else if (this.getPrefix() >= 9) {
                 while (!finished) {
@@ -226,7 +321,20 @@ public class IPAddress {
                         subnetPart + "."        +
                         "0"         + "."        +
                         "0";
-                this.subnetAddress = result;
+                this.subnetAddress = result + "/" + this.getPrefix();
+
+                if (this.getPart2() != subnetPart) {
+                    this.pcNumber = this.getPart4() + this.getPart3() * 256 + (this.getPart2() - subnetPart) * 65536; // tzv. Mužíkův vzorec
+                }
+                else if (this.getPart3() != 0) {
+                    this.pcNumber = this.getPart4() + this.getPart3() * 256;
+                }
+                else if (this.getPart4() != 0){
+                    this.pcNumber = this.getPart4();
+                }
+                else {
+                    this.pcNumber = 1; // Address is same as network address
+                }
             }
             else if (this.getPrefix() >= 1){
                 while (!finished) {
@@ -240,7 +348,29 @@ public class IPAddress {
                         "0" + "."       +
                         "0"  + "."      +
                         "0";
-                this.subnetAddress = result;
+                this.subnetAddress = result + "/" + this.getPrefix();
+
+                if (this.getPart1() != subnetPart) {
+                    this.pcNumber = this.getPart4() + this.getPart3() * 256 + this.getPart2() * 65536 +
+                            // TODO Fix issue with overflowing integer max value (if needed??)
+                            (this.getPart1() - subnetPart) * 16777216; // tzv. Mužíkův vzorec
+                    // For debug:
+                    if (this.pcNumber == 2147483647) {
+                        System.out.println("Maximum integer value reached.");
+                    }
+                }
+                else if (this.getPart2() != 0) {
+                    this.pcNumber = this.getPart4() + this.getPart3() * 256 + this.getPart2() * 65536; // tzv. Mužíkův vzorec
+                }
+                else if (this.getPart3() != 0) {
+                    this.pcNumber = this.getPart4() + this.getPart3() * 256; // tzv. Mužíkův vzorec
+                }
+                else if (this.getPart4() != 0){
+                    this.pcNumber = this.getPart4();
+                }
+                else {
+                    this.pcNumber = 1; // Address is same as network address
+                }
             }
         }
     }
@@ -279,11 +409,11 @@ public class IPAddress {
 
     @Override
     public String toString() {
-        return "Třída "+this.getIpClass()+" - "+this.getIpRange() +
-                "\nTřídní adresa sítě: " + "?"                    +  //TODO
-                "\nAdresa podsítě: "+this.getSubnetAddress()      +
-                "\nČíslo sítě: " + "?"                            +  //TODO
-                "\nČíslo podsítě: " + "?"                         +  //TODO
-                "\nČíslo PC: " + "?";                                //TODO
+        return "Třída "+this.getIpClass()+" - "+this.getIpRange()   +
+                "\nTřídní adresa sítě: " + this.getNetworkAddress() +
+                "\nAdresa podsítě: "+ this.getSubnetAddress()       +
+                "\nČíslo sítě: " + this.getNetworkNumber()          +
+                "\nČíslo podsítě: " + "?"                           +  //TODO
+                "\nČíslo PC: " + this.getPcNumber();
     }
 }
