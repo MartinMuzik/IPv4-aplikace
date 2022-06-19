@@ -22,6 +22,7 @@ public class IPAddress {
     private String subnetAddress;
     private String networkAddress;
     private String networkNumber;
+    private int subnetNumber;
     private int pcNumber;
 
     /**
@@ -42,6 +43,7 @@ public class IPAddress {
         this.setIpRange();
         this.setSubnetAddress();
         this.setNetwork();
+        this.setSubnetNumber();
     }
 
     public int getPart1() {
@@ -100,27 +102,39 @@ public class IPAddress {
      * This method is used to set if the address is private, public or special.
      */
     public void setIpRange() {
-        // IPs in form 10.x.x.x are private
-        if (this.getPart1() == 10) {
-            this.ipRange = "Neveřejná";
+        if (this.getPart1() == 0 && this.getPart2() == 0 &&
+            this.getPart3() == 0 && this.getPart4() == 0) {
+            this.ipRange = "Speciální";
         }
-        // IPs in form 169.254.x.x are private
-        else if (this.getPart1() == 169 &&
-                this.getPart2() == 254) {
-            this.ipRange = "Neveřejná";
+        else if (this.getPart1() == 127) {
+            this.ipRange = "Speciální";
         }
-        // IPs in form 172.(16-31).x.x are private
-        else if (this.getPart1() == 172 &&
-                this.getPart2() >= 16 &&
-                this.getPart2() <= 31) {
-            this.ipRange = "Neveřejná";
+        else if (this.getPart1() == 255 && this.getPart2() == 255 &&
+                this.getPart3() == 255 && this.getPart4() == 255) {
+            this.ipRange = "Speciální";
         }
-        // IPs in form 192.168.x.x are private
-        else if (this.getPart1() == 192 &&
-                this.getPart2() <= 168) {
-            this.ipRange = "Neveřejná";
+        else{
+            // IPs in form 10.x.x.x are private
+            if (this.getPart1() == 10) {
+                this.ipRange = "Neveřejná";
+            }
+            // IPs in form 169.254.x.x are private
+            else if (this.getPart1() == 169 &&
+                    this.getPart2() == 254) {
+                this.ipRange = "Neveřejná";
+            }
+            // IPs in form 172.(16-31).x.x are private
+            else if (this.getPart1() == 172 &&
+                    this.getPart2() >= 16 &&
+                    this.getPart2() <= 31) {
+                this.ipRange = "Neveřejná";
+            }
+            // IPs in form 192.168.x.x are private
+            else if (this.getPart1() == 192 &&
+                    this.getPart2() <= 168) {
+                this.ipRange = "Neveřejná";
+            } else this.ipRange = "Veřejná";
         }
-        else this.ipRange = "Veřejná";
 
     }
 
@@ -155,6 +169,7 @@ public class IPAddress {
     public String getPcNumber() {
         return Long.toString(pcNumber);
     }
+
     public String getSubnetAddress() {
         return subnetAddress;
     }
@@ -352,12 +367,11 @@ public class IPAddress {
 
                 if (this.getPart1() != subnetPart) {
                     this.pcNumber = this.getPart4() + this.getPart3() * 256 + this.getPart2() * 65536 +
-                            // TODO Fix issue with overflowing integer max value (if needed??)
                             (this.getPart1() - subnetPart) * 16777216; // tzv. Mužíkův vzorec
                     // For debug:
-                    if (this.pcNumber == 2147483647) {
-                        System.out.println("Maximum integer value reached.");
-                    }
+//                    if (this.pcNumber == 2147483647) {
+//                        System.out.println("Maximum integer value reached.");
+//                    }
                 }
                 else if (this.getPart2() != 0) {
                     this.pcNumber = this.getPart4() + this.getPart3() * 256 + this.getPart2() * 65536; // tzv. Mužíkův vzorec
@@ -407,13 +421,35 @@ public class IPAddress {
         return Integer.parseInt(binary, 2);
     }
 
+    public int getSubnetNumber() {
+        return this.subnetNumber;
+    }
+    /**
+     * This method is used to set a subnet number
+     */
+    public void setSubnetNumber() {
+        if (this.getIpClass() == 'A') {
+            this.subnetNumber = 3;
+        }
+        else if (this.getIpClass() == 'B') {
+            this.subnetNumber = 2;
+        }
+        else if (this.getIpClass() == 'C') {
+            this.subnetNumber = 1;
+        }
+        else {
+            this.subnetNumber = 0;
+        }
+
+    }
+
     @Override
     public String toString() {
         return "Třída "+this.getIpClass()+" - "+this.getIpRange()   +
                 "\nTřídní adresa sítě: " + this.getNetworkAddress() +
                 "\nAdresa podsítě: "+ this.getSubnetAddress()       +
                 "\nČíslo sítě: " + this.getNetworkNumber()          +
-                "\nČíslo podsítě: " + "?"                           +  //TODO
+                "\nČíslo podsítě: " + this.getSubnetNumber()        +
                 "\nČíslo PC: " + this.getPcNumber();
     }
 }
